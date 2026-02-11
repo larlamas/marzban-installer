@@ -20,6 +20,9 @@
 ###############################################################################
 set -euo pipefail
 
+# ─────────────────────── error handling ──────────────────────────────────────
+trap 'echo ""; colorized_echo red "ERROR: Script failed at line $LINENO (exit code $?)"; echo "Run with: bash -x install_marzban.sh <DOMAIN> for debug output"; exit 1' ERR
+
 # ─────────────────────── colour helpers ──────────────────────────────────────
 colorized_echo() {
     local color="$1"
@@ -269,7 +272,15 @@ main() {
     print_banner
     check_root
     check_os
-    get_domain "${1:-}"
+
+    # When run via: bash -c "$(wget -qO- ...)" mydomain.com
+    # the domain lands in $0 (not $1). Detect this and fix it.
+    local domain_arg="${1:-}"
+    if [[ -z "$domain_arg" ]] && [[ "$0" == *.* ]] && [[ "$0" != */* ]] && [[ "$0" != "bash" ]] && [[ "$0" != "-bash" ]]; then
+        domain_arg="$0"
+    fi
+
+    get_domain "$domain_arg"
 
     configure_firewall
     install_docker
@@ -282,3 +293,4 @@ main() {
 }
 
 main "$@"
+

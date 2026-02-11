@@ -39,7 +39,7 @@
 ### Вариант 1: Одна команда (рекомендуется)
 
 ```bash
-sudo bash -c "$(wget -qO- https://raw.githubusercontent.com/larlamas/marzban-installer/main/install_marzban.sh)" @ panel.example.com
+sudo bash -c "$(wget -qO- https://raw.githubusercontent.com/larlamas/marzban-installer/main/install_marzban.sh)" _ panel.example.com
 ```
 
 ### Вариант 2: Скачать и запустить
