@@ -182,46 +182,17 @@ install_caddy() {
 
     colorized_echo green "  ✓ Caddy v${CADDY_VERSION} installed"
 
-    # Write Caddyfile
+    # Write Caddyfile — reverse proxy for the specific domain
     cat > /etc/caddy/Caddyfile <<CADDYEOF
+# ── Marzban Reverse Proxy ────────────────────────────────
 {
-    auto_https disable_redirects
     https_port ${HTTPS_PORT}
-    log {
-        level ERROR
-    }
-    on_demand_tls {
-        ask http://localhost:10087/
-        interval 3600s
-        burst 4
-    }
 }
 
-# Handle connections by IP (self-signed TLS)
-https://{\$IP}:${HTTPS_PORT} {
+https://${DOMAIN}:${HTTPS_PORT} {
     reverse_proxy localhost:8000
-    tls internal {
-        on_demand
-    }
-}
 
-# Handle connections by domain (automatic Let's Encrypt TLS)
-https://*.*:${HTTPS_PORT},
-https://*.*.*:${HTTPS_PORT} {
-    reverse_proxy localhost:8000
-    tls {
-        on_demand
-        issuer acme {
-            email ${ACME_EMAIL}@noreply.local
-        }
-    }
-}
-
-# Internal responder for on_demand_tls ask endpoint
-http://:10087 {
-    respond "allowed" 200 {
-        close
-    }
+    tls ${ACME_EMAIL}@noreply.local
 }
 CADDYEOF
 
