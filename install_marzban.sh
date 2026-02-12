@@ -77,7 +77,6 @@ HTTPS_PORT=$(shuf -i 50000-65535 -n1)
 # Random credentials
 ADMIN_USER="admin"
 ADMIN_PASS=$(head -c 128 /dev/urandom | tr -dc 'A-Za-z0-9' | head -c 16 || true)
-ACME_EMAIL=$(head -c 128 /dev/urandom | tr -dc 'a-z0-9' | head -c 12 || true)
 
 # Caddy version
 CADDY_VERSION="2.9.1"
@@ -191,8 +190,6 @@ install_caddy() {
 
 https://${DOMAIN}:${HTTPS_PORT} {
     reverse_proxy localhost:8000
-
-    tls ${ACME_EMAIL}@noreply.local
 }
 CADDYEOF
 
