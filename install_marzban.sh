@@ -76,8 +76,8 @@ HTTPS_PORT=$(shuf -i 50000-65535 -n1)
 
 # Random credentials
 ADMIN_USER="admin"
-ADMIN_PASS=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 16)
-ACME_EMAIL=$(tr -dc 'a-z0-9' </dev/urandom | head -c 12)
+ADMIN_PASS=$(head -c 128 /dev/urandom | tr -dc 'A-Za-z0-9' | head -c 16 || true)
+ACME_EMAIL=$(head -c 128 /dev/urandom | tr -dc 'a-z0-9' | head -c 12 || true)
 
 # Caddy version
 CADDY_VERSION="2.9.1"
