@@ -1,6 +1,3 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/Gozargah/Marzban/master/app/dashboard/public/android-chrome-192x192.png" alt="Marzban Logo" width="100">
-</p>
 
 <h1 align="center">Marzban — Custom Installer</h1>
 
