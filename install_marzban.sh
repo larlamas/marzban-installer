@@ -105,9 +105,31 @@ get_domain() {
     colorized_echo green "Domain set to: ${DOMAIN}"
 }
 
+# ─────────────────────── system update ───────────────────────────────────────
+ask_system_update() {
+    echo ""
+    colorized_echo cyan "Would you like to update system packages before installation?"
+    colorized_echo yellow "  This will run: apt update && apt upgrade -y && apt autoremove -y"
+    echo ""
+    read -rp "Update system? [y/N]: " UPDATE_CHOICE
+
+    case "${UPDATE_CHOICE,,}" in
+        y|yes)
+            colorized_echo blue "[1/8] Updating system packages..."
+            apt-get update -y
+            apt-get upgrade -y
+            apt-get autoremove -y
+            colorized_echo green "System packages updated."
+            ;;
+        *)
+            colorized_echo yellow "[1/8] Skipping system update."
+            ;;
+    esac
+}
+
 # ─────────────────────── firewall ────────────────────────────────────────────
 configure_firewall() {
-    colorized_echo blue "[1/7] Configuring firewall..."
+    colorized_echo blue "[2/8] Configuring firewall..."
     if command -v ufw &>/dev/null; then
         ufw disable || true
         colorized_echo green "UFW disabled."
@@ -118,7 +140,7 @@ configure_firewall() {
 
 # ─────────────────────── Docker ──────────────────────────────────────────────
 install_docker() {
-    colorized_echo blue "[2/7] Installing Docker..."
+    colorized_echo blue "[3/8] Installing Docker..."
     if command -v docker &>/dev/null; then
         colorized_echo green "Docker is already installed — skipping."
     else
@@ -130,14 +152,14 @@ install_docker() {
 
 # ─────────────────────── Marzban CLI ─────────────────────────────────────────
 install_marzban_cli() {
-    colorized_echo blue "[3/7] Installing Marzban CLI script..."
+    colorized_echo blue "[4/8] Installing Marzban CLI script..."
     curl -sSL "$MARZBAN_SCRIPT_URL" | install -m 755 /dev/stdin /usr/local/bin/marzban
     colorized_echo green "Marzban CLI installed → /usr/local/bin/marzban"
 }
 
 # ─────────────────────── Marzban files ───────────────────────────────────────
 download_marzban_files() {
-    colorized_echo blue "[4/7] Downloading Marzban configuration files..."
+    colorized_echo blue "[5/8] Downloading Marzban configuration files..."
 
     mkdir -p "$APP_DIR"
     mkdir -p "$DATA_DIR"
@@ -153,7 +175,7 @@ download_marzban_files() {
 
 # ─────────────────────── .env ────────────────────────────────────────────────
 generate_env() {
-    colorized_echo blue "[5/7] Generating .env configuration..."
+    colorized_echo blue "[6/8] Generating .env configuration..."
 
     cat > "${APP_DIR}/.env" <<EOF
 # ── Marzban Environment ───────────────────────────────────────
@@ -171,7 +193,7 @@ EOF
 
 # ─────────────────────── Caddy ───────────────────────────────────────────────
 install_caddy() {
-    colorized_echo blue "[6/7] Installing & configuring Caddy reverse proxy..."
+    colorized_echo blue "[7/8] Installing & configuring Caddy reverse proxy..."
 
     # Install Caddy from .deb
     local tmp_deb="/tmp/caddy_${CADDY_VERSION}.deb"
@@ -199,7 +221,7 @@ CADDYEOF
 
 # ─────────────────────── start Marzban ───────────────────────────────────────
 start_marzban() {
-    colorized_echo blue "[7/7] Starting Marzban..."
+    colorized_echo blue "[8/8] Starting Marzban..."
     docker compose -f "$COMPOSE_FILE" -p "$APP_NAME" up -d --remove-orphans
     colorized_echo green "Marzban containers are up and running!"
 }
@@ -249,6 +271,7 @@ main() {
     fi
 
     get_domain "$domain_arg"
+    ask_system_update
 
     configure_firewall
     install_docker
